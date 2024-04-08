@@ -5,14 +5,12 @@ const cain_cat_dist_deleMSSQL = sqlconnector.define('cain_cat_dist_dele', {
     id_distrito:{ 
         type: DataTypes.INTEGER,
         primaryKey: true,
-        autoIncrement: false,
-        unique: true
+        autoIncrement: false
     },
     id_delegacion:{ 
         type: DataTypes.INTEGER,
         primaryKey: true,
-        autoIncrement: false,
-        unique: true
+        autoIncrement: false
     },
     fecha_alta:         { type: DataTypes.DATE },
     fecha_modifica:     { type: DataTypes.DATE},

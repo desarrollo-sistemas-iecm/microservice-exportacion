@@ -6,7 +6,7 @@
 const { Router } = require('express');
 const { check } = require('express-validator');
 const { Migracion_cain_cat_delegacion, Migracion_cain_cat_dist_dele, Migracion_cain_cat_distrito, Migracion_prep_votos, 
-        Migracion_prep_cat_inconsistencias, Migracion_scd_casillas, ConsultaVotos} = require('../controller/migracion_prep.controller');
+        Migracion_prep_cat_inconsistencias, Migracion_prep_inconsistencias, Migracion_scd_casillas, ConsultaVotos, CrearCorte} = require('../controller/migracion_prep.controller');
 const { validadorCreateItem } = require('../validators/validador');
 const router = Router();
 
@@ -26,6 +26,10 @@ router.get('/prep_cat_inconsistencias',
     [
     ], Migracion_prep_cat_inconsistencias 
 );
+router.get('/prep_inconsistencias',
+    [
+    ], Migracion_prep_inconsistencias 
+);
 router.get('/prep_votos',
     [
     ], Migracion_prep_votos 
@@ -38,6 +42,10 @@ router.post('/consulta_votos',
     [
         check('id_distrito', 'Se necesita indicar el identificador de la Dirección Distrito "id_distrito".').exists().notEmpty(),
     ], ConsultaVotos 
+);
+router.get('/corte',
+    [
+    ], CrearCorte 
 );
 
 module.exports = router;

@@ -5,13 +5,18 @@
 
 const { Router } = require('express');
 const { check } = require('express-validator');
-const { Migracion_scd_votos, ConsultaVotos } = require('../controller/migracion_scd.controller');
+const { Migracion_scd_votos, ConsultaVotos, CrearCorte } = require('../controller/migracion_scd.controller');
 const { validadorCreateItem } = require('../validators/validador');
 const router = Router();
 
 router.get('/scd_votos',
     [
     ], Migracion_scd_votos 
+);
+
+router.get('/corte',
+    [
+    ], CrearCorte 
 );
 
 router.post('/consulta_votos',

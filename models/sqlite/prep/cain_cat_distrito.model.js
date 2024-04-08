@@ -6,13 +6,11 @@ const cain_cat_distritoSQLite = sqliteconnector.define('cain_cat_distrito', {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: false,
-        unique: true
     },
     id_delegacion:  { 
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: false,
-        unique: true
     },  
     romano:         { type: DataTypes.STRING },
     direccion:      { type: DataTypes.STRING },
@@ -24,9 +22,9 @@ const cain_cat_distritoSQLite = sqliteconnector.define('cain_cat_distrito', {
     coordinador:    { type: DataTypes.STRING },
     secretario:     { type: DataTypes.STRING },
     num_envio:      { type: DataTypes.STRING },
-    fecha_alta:     { type: DataTypes.DATE },
-    fecha_modifica: { type: DataTypes.DATE },
-    fecha_baja:     { type: DataTypes.DATE },
+    fecha_alta:     { type: DataTypes.STRING },
+    fecha_modifica: { type: DataTypes.STRING },
+    fecha_baja:     { type: DataTypes.STRING },
     estatus:        { type: DataTypes.INTEGER },
 }, 
 {

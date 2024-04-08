@@ -81,8 +81,8 @@ const scd_votosSQLite = sqliteconnector2.define('scd_votos', {
     grupo_trabajo:      { type: DataTypes.INTEGER },
     punto_recuento:     { type: DataTypes.INTEGER },
     id_usuario:         { type: DataTypes.INTEGER },
-    fecha_alta:         { type: DataTypes.DATE},
-    fecha_modif:        { type: DataTypes.DATE},
+    fecha_alta:         { type: DataTypes.STRING},
+    fecha_modif:        { type: DataTypes.STRING},
     estatus:            { type: DataTypes.CHAR},
 }, 
 {

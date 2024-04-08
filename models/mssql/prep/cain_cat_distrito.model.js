@@ -6,13 +6,11 @@ const cain_cat_distritoMSSQL = sqlconnector.define('cain_cat_distrito', {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: false,
-        unique: true
     },
     id_delegacion:  { 
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: false,
-        unique: true
     },  
     romano:         { type: DataTypes.STRING },
     direccion:      { type: DataTypes.STRING },

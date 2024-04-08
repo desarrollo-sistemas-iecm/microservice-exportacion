@@ -5,18 +5,16 @@ const cain_cat_dist_deleSQLite = sqliteconnector.define('cain_cat_dist_dele', {
     id_distrito:{ 
         type: DataTypes.INTEGER,
         primaryKey: true,
-        autoIncrement: false,
-        unique: true
+        autoIncrement: false
     },
     id_delegacion:{ 
         type: DataTypes.INTEGER,
         primaryKey: true,
-        autoIncrement: false,
-        unique: true
+        autoIncrement: false
     },
-    fecha_alta:         { type: DataTypes.DATE },
-    fecha_modifica:     { type: DataTypes.DATE},
-    fecha_baja:         { type: DataTypes.DATE },
+    fecha_alta:         { type: DataTypes.STRING },
+    fecha_modifica:     { type: DataTypes.STRING },
+    fecha_baja:         { type: DataTypes.STRING },
     estatus:            { type: DataTypes.INTEGER }
 }, 
 {

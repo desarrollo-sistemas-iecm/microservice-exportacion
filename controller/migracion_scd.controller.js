@@ -1,4 +1,12 @@
 const { response } = require("express");
+const fs = require('fs');
+const ftp = require("basic-ftp");
+const moment = require('moment');
+const { servers } = require('../helpers/servidores')
+
+
+let Client = require('ssh2-sftp-client');
+
 /**
  * Modelos de la base de datos de MSSQL
  */
@@ -88,8 +96,8 @@ const Migracion_scd_votos = async (req, res = response) => {
                 grupo_trabajo: element.grupo_trabajo,
                 punto_recuento: element.punto_recuento,
                 id_usuario: element.id_usuario,
-                fecha_alta: element.fecha_alta,
-                fecha_modif: element.fecha_modif,
+                fecha_alta: moment(element.fecha_alta).format("YYYY-MM-DD HH:mm:ss.SSS"),
+                fecha_modif: moment(element.fecha_modif).format("YYYY-MM-DD HH:mm:ss.SSS"),
                 estatus: element.estatus
             })
         })
@@ -133,7 +141,102 @@ const ConsultaVotos = async(req, res) =>{
     }
 }
 
+const CrearCorte = async(req, res) =>{
+    const ruteFile = 'db3/scd/database.db3';
+    const tls = {
+        rejectUnauthorized: false, // Opcional: si el certificado no está firmado por una autoridad de confianza
+        ca: fs.readFileSync('credentials/22/solicitud.csr'), // Ruta al archivo CRT del certificado CA
+        cert: fs.readFileSync('credentials/22/certificado.crt'), // Ruta al archivo CRT del certificado del cliente
+        key: fs.readFileSync('credentials/22/clave.key'), // Ruta al archivo KEY de la clave privada del cliente
+    }
+    try {
+        fs.copyFile('db3/scd/database.db3', 'db3/scd/bitacora/database.db3', (err) => {
+            if (err) throw err;
+            console.log('Base de datos SICODID db3 ha sido copiada a la bitacora');
+            fs.rename('db3/scd/bitacora/database.db3',  `db3/scd/bitacora/database-${Date.now()}.db3`, (err) => {
+                if (err) throw err;
+                console.log('Base de datos SICODID db3 ha sido renombrado con fecha y hora de creación');
+            });
+        });
+        console.log('Siguiente paso');
+        for (const server of servers) {
+            // const client = new ftp.Client();
+            // client.ftp.verbose = true;
+
+            let sftp = new Client();
+            try {
+                // await client.access({
+                //     host: server.host,
+                //     port: server.port,
+                //     user: server.user,
+                //     password: server.password,
+                //     secure: server.secure,
+                //     tls: tls
+                // });
+
+                await sftp.connect({
+                    host: server.host,
+                    port: server.port,
+                    username: server.user,
+                    password:  server.password
+                }).then(() => {
+                    console.log(`Conectado a ${server.name}`);
+                    const ruta = server.route;
+                    // sftp.delete(`${ruta}database.db3`);
+                    // console.log(`Archivo eliminado para sustituir de ${name}`);
+                    return sftp.exists(`${ruta}sicodid/database.db3`).then((exists) => {
+                        if (exists) {
+                            console.log('El archivo remoto existe. Eliminándolo...');
+                            // Eliminar el archivo remoto
+                            return sftp.delete(`${ruta}sicodid/database.db3`);
+                        } else {
+                            console.log('El archivo remoto no existe.');
+                            return Promise.resolve(); // Continuar sin eliminar el archivo
+                        }
+                    }).then(() => {
+                        console.log('Subiendo nuevo archivo...');
+                        // Subir el nuevo archivo
+                        return sftp.put(fs.createReadStream(ruteFile), `${ruta}sicodid/database.db3`);
+                    });
+                }).then((data) => {
+                    console.log(`Archivo cargado al servidor ${server.name}`);
+                }).catch((err) => {
+                    console.error('Error al indicar archivo:');
+                }).finally(() => {
+                    // Cerrar la conexión SFTP
+                    sftp.end();
+                });;
+    
+                // console.log(`Conectado a ${server.name}`);
+                // const ruta = server.route;
+    
+                // await client.uploadFrom(fs.createReadStream(ruteFile), `${ruta}database.db3`);
+
+    
+                // console.log(`Archivo subido a ${server.name}`);
+    
+                // client.close();
+                // console.log(`Desconectado de ${server.name}`);
+            } catch (err) {
+                console.error(`Error en la transferencia a ${server.name}:`, err);
+            }
+        } 
+        return res.send({
+            ok: true,
+            msg: 'Se ha creado el corte y exportado la Base de Datos SICODID'
+        });
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send({
+            ok: false,
+            msg: 'Error con la conexión de la BD',
+        }); 
+    }
+}
+
 module.exports = {
     Migracion_scd_votos,
+    CrearCorte,
     ConsultaVotos
 }

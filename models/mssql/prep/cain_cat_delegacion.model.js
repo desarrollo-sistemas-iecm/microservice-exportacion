@@ -10,9 +10,9 @@ const cain_cat_delegacionMSSQL = sqlconnector.define('cain_cat_delegacion', {
     },
     distrito_cab:       { type: DataTypes.INTEGER },  
     nombre_delegacion:  { type: DataTypes.STRING },
-    fecha_alta:         { type: DataTypes.DATE },
-    fecha_modifica:     { type: DataTypes.DATE},
-    fecha_baja:         { type: DataTypes.DATE },
+    fecha_alta:         { type: DataTypes.STRING },
+    fecha_modifica:     { type: DataTypes.STRING},
+    fecha_baja:         { type: DataTypes.STRING },
     estatus:            { type: DataTypes.INTEGER }
 }, 
 {

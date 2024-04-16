@@ -12,8 +12,8 @@ const prep_cat_inconsistenciasMSSQL = sqlconnector.define('prep_cat_inconsistenc
     descripcion:        { type: DataTypes.STRING },
     descripcion_abrev:  { type: DataTypes.STRING },
     id_usuario:         { type: DataTypes.INTEGER},
-    fecha_alta:         { type: DataTypes.DATE },
-    fecha_modif:        { type: DataTypes.DATE },
+    fecha_alta:         { type: DataTypes.STRING },
+    fecha_modif:        { type: DataTypes.STRING },
     estatus:            { type: DataTypes.STRING },
 }, 
 {

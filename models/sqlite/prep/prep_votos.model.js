@@ -71,10 +71,12 @@ const prep_votosSQLite = sqliteconnector.define('prep_votos', {
     votos_cand_no_reg:  { type: DataTypes.INTEGER },
     votos_nulos:        { type: DataTypes.INTEGER },
     boletas_sob:        { type: DataTypes.INTEGER },
+    votacion_total:     { type: DataTypes.INTEGER },
     ciudadanos_votaron: { type: DataTypes.INTEGER },
     representantes_votaron:{ type: DataTypes.INTEGER },
     total_votaron:      { type: DataTypes.INTEGER },
     boletas_extraidas:  { type: DataTypes.INTEGER },
+    total_sobres:       { type: DataTypes.INTEGER },
     id_usuario:         { type: DataTypes.INTEGER },
     fecha_alta:         { type: DataTypes.STRING},
     fecha_modif:        { type: DataTypes.STRING},
@@ -90,8 +92,28 @@ const prep_votosSQLite = sqliteconnector.define('prep_votos', {
     freezeTableName: true,
     indexes:[
         {
+            name: 'idx_del_dto_sec',
+            fields:['id_distrito', 'id_delegacion', 'id_seccion']
+        },
+        {
+            name: 'idx_del_dto_sec_cas',
+            fields:['id_distrito', 'id_delegacion', 'id_seccion', 'tipo_casilla']
+        },
+        {
+            name: 'idx_delgacion',
+            fields:['id_delegacion']
+        },
+        {
+            name: 'idx_dto',
+            fields:['id_distrito']
+        },
+        {
             name: 'idx_tipelec_sec',
             fields:['id_tipo_eleccion', 'id_seccion']
+        },
+        {
+            name: 'idx_tipo_elec',
+            fields:['id_tipo_eleccion']
         }
     ]
 });

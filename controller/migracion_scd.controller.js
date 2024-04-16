@@ -8,10 +8,13 @@ const { servers } = require('../helpers/servidores')
 let Client = require('ssh2-sftp-client');
 
 /**
- * Modelos de la base de datos de MSSQL
+ * Modelos de la base de datos de MSSQL de 145.0.40.70
  */
 const { scd_votosMSSQL } = require('../models/mssql/sicodid/scd_votos.model');
-/** */
+
+/** 
+ * Modelos de la base de datos SQLite a exportar 
+ */
 const { scd_votosSQLite } = require('../models/sqlite/scd/scd_votos.model');
 
 /**
@@ -25,6 +28,7 @@ const Migracion_scd_votos = async (req, res = response) => {
     try {
         const datosMSSQL = await scd_votosMSSQL.findAll();
         if (datosMSSQL.length == 0){
+            await scd_votosSQLite.destroy({ where : {}});
             return res.send({
                 ok: true,
                 msg: 'Sin datos en scd_votos'
@@ -201,7 +205,8 @@ const CrearCorte = async(req, res) =>{
                 }).then((data) => {
                     console.log(`Archivo cargado al servidor ${server.name}`);
                 }).catch((err) => {
-                    console.error('Error al indicar archivo:');
+                    console.error('Error al indicar archivo:', err);
+                    sftp.end();
                 }).finally(() => {
                     // Cerrar la conexión SFTP
                     sftp.end();

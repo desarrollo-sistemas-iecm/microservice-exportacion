@@ -18,6 +18,10 @@ const { scd_votosMSSQL } = require('../models/mssql/sicodid/scd_votos.model');
 const { scd_votosSQLite } = require('../models/sqlite/scd/scd_votos.model');
 const { scd_cat_delegacionMSSQL } = require("../models/mssql/sicodid/scd_cat_delegacion.model");
 const { scd_cat_delegacionSQLite } = require("../models/sqlite/scd/scd_cat_delegacion.model");
+const { scd_cat_dist_deleMSSQL } = require("../models/mssql/sicodid/scd_cat_dist_dele.model");
+const { scd_cat_dist_deleSQLite } = require("../models/sqlite/scd/scd_cat_dist_dele.model");
+const { scd_cat_distritoMSSQL } = require("../models/mssql/sicodid/scd_cat_distrito.model");
+const { scd_cat_distritoSQLite } = require("../models/sqlite/scd/scd_cat_distrito.model");
 
 /**
  * Migración de información de la tabla prep_votosMSSQL
@@ -288,9 +292,112 @@ const Migracion_scd_cat_delegacion = async (req, res = response) => {
     }
 }
 
+const Migracion_scd_cat_dist_dele = async (req, res = response) => {
+    let datos =[];
+    try {
+        const datosMSSQL = await scd_cat_dist_deleMSSQL.findAll();
+        if (datosMSSQL.length == 0){
+            await scd_cat_dist_deleSQLite.destroy({ where : {}});
+            return res.send({
+                ok: true,
+                msg: 'Sin datos en scd_cat_dist_dele'
+            });
+        }
+        datosMSSQL.forEach((element)=>{
+            datos.push({
+                id_distrito: element.id_distrito,   
+                id_delegacion: element.id_delegacion,  
+                // fecha_alta: moment(element.fecha_alta).format("YYYY-MM-DD HH:mm:ss.SSS"),
+                // fecha_modifica: moment(element.fecha_modifica).format("YYYY-MM-DD HH:mm:ss.SSS"),
+                // fecha_baja: element.fecha_baja != '' ? moment(element.fecha_baja).format("YYYY-MM-DD HH:mm:ss.SSS") : '',
+                fecha_alta: element.fecha_alta,
+                fecha_modifica: element.fecha_modifica,
+                fecha_baja: element.fecha_baja,
+                estatus: element.estatus,
+            })
+        })
+        console.log(datosMSSQL.length,' registros encontrados')
+        //Limpiado de infromación
+        await scd_cat_dist_deleSQLite.destroy({ where : {}});
+        await scd_cat_dist_deleSQLite.bulkCreate(datos);
+        //const datosSQLite = await scd_cat_dist_deleSQLite.findAll();
+
+        return res.send({
+            ok: true,
+            msg: 'Se ha realizado la migracion de scd_cat_dist_dele',
+            //datosSQLite,
+            //datosSQLite
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send({
+            ok: false,
+            msg: 'Error crítico en la migracion',
+        }); 
+    }
+}
+
+const Migracion_scd_cat_distrito = async (req, res = response) => {
+    let datos =[];
+    try {
+        const datosMSSQL = await scd_cat_distritoMSSQL.findAll();
+        if (datosMSSQL.length == 0){
+            await scd_cat_distritoSQLite.destroy({ where : {}});
+            return res.send({
+                ok: true,
+                msg: 'Sin datos en scd_cat_distrito'
+            });
+        }
+        datosMSSQL.forEach((element)=>{
+            datos.push({
+                id_distrito: element.id_distrito,   
+                id_delegacion: element.id_delegacion,
+                romano: element.romano,
+                direccion: element.direccion,
+                colonia: element.colonia,
+                cp: element.cp,
+                telefono1: element.telefono1,
+                telefono2: element.telefono2,
+                telefono3: element.telefono3,
+                coordinador: element.coordinador,
+                secretario: element.secretario,
+                // num_envio: element.num_envio,
+                // fecha_alta: moment(element.fecha_alta).format("YYYY-MM-DD HH:mm:ss.SSS"),
+                // fecha_modifica: moment(element.fecha_modifica).format("YYYY-MM-DD HH:mm:ss.SSS"),
+                // fecha_baja: element.fecha_baja != '' ? moment(element.fecha_baja).format("YYYY-MM-DD HH:mm:ss.SSS") : '',
+                fecha_alta: element.fecha_alta,
+                fecha_modifica: element.fecha_modifica,
+                fecha_baja: element.fecha_baja,
+                estatus: element.estatus,
+            })
+        })
+        console.log(datosMSSQL.length,' registros encontrados')
+        //Limpiado de infromación
+        await scd_cat_distritoSQLite.destroy({ where : {}});
+        await scd_cat_distritoSQLite.bulkCreate(datos);
+        //const datosSQLite = await cain_cat_dist_deleSQLite.findAll();
+
+        return res.send({
+            ok: true,
+            msg: 'Se ha realizado la migracion de scd_cat_distrito',
+            //datosSQLite,
+            //datosSQLite
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send({
+            ok: false,
+            msg: 'Error crítico en la migracion',
+        }); 
+    }
+}
+
+
 module.exports = {
     Migracion_scd_votos,
     CrearCorte,
     ConsultaVotos,
-    Migracion_scd_cat_delegacion
+    Migracion_scd_cat_delegacion,
+    Migracion_scd_cat_dist_dele,
+    Migracion_scd_cat_distrito
 }

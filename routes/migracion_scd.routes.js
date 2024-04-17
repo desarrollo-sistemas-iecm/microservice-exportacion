@@ -5,7 +5,7 @@
 
 const { Router } = require('express');
 const { check } = require('express-validator');
-const { Migracion_scd_votos, ConsultaVotos, CrearCorte, Migracion_scd_cat_delegacion } = require('../controller/migracion_scd.controller');
+const { Migracion_scd_votos, ConsultaVotos, CrearCorte, Migracion_scd_cat_delegacion, Migracion_scd_cat_dist_dele, Migracion_scd_cat_distrito } = require('../controller/migracion_scd.controller');
 const { validadorCreateItem } = require('../validators/validador');
 const router = Router();
 
@@ -26,9 +26,20 @@ router.post('/consulta_votos',
 );
 
 
+// ! Integración de Daniel Rea
 router.get('/scd_cat_delegacion',
     [
     ], Migracion_scd_cat_delegacion 
+);
+
+router.get('/scd_cat_dist_dele',
+    [
+    ], Migracion_scd_cat_dist_dele
+);
+
+router.get('/scd_cat_distrito',
+    [
+    ], Migracion_scd_cat_distrito 
 );
 
 module.exports = router;

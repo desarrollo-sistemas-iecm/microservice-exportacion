@@ -16,6 +16,8 @@ const { scd_votosMSSQL } = require('../models/mssql/sicodid/scd_votos.model');
  * Modelos de la base de datos SQLite a exportar 
  */
 const { scd_votosSQLite } = require('../models/sqlite/scd/scd_votos.model');
+const { scd_cat_delegacionMSSQL } = require("../models/mssql/sicodid/scd_cat_delegacion.model");
+const { scd_cat_delegacionSQLite } = require("../models/sqlite/scd/scd_cat_delegacion.model");
 
 /**
  * Migración de información de la tabla prep_votosMSSQL
@@ -240,8 +242,55 @@ const CrearCorte = async(req, res) =>{
     }
 }
 
+const Migracion_scd_cat_delegacion = async (req, res = response) => {
+    let datos =[];
+    try {
+        const datosMSSQL = await scd_cat_delegacionMSSQL.findAll();
+        /* if (datosMSSQL.length == 0){
+            await scd_cat_delegacionSQLite.destroy({ where : {}});
+            return res.send({
+                ok: true,
+                msg: 'Sin datos en scd_cat_delegacion'
+            });
+        }
+        datosMSSQL.forEach((element)=>{
+            datos.push({
+                id_delegacion: element.id_delegacion,  
+                distrito_cab: element.distrito_cab,   
+                nombre_delegacion: element.nombre_delegacion,
+                // fecha_alta: moment(element.fecha_alta).format("YYYY-MM-DD HH:mm:ss.SSS"),
+                // fecha_modifica: moment(element.fecha_modifica).format("YYYY-MM-DD HH:mm:ss.SSS"),
+                // fecha_baja: moment(element.fecha_baja).format("YYYY-MM-DD HH:mm:ss.SSS"),
+                fecha_alta: element.fecha_alta,
+                fecha_modifica: element.fecha_modifica,
+                fecha_baja: element.fecha_baja,
+                estatus: element.estatus,
+            })
+        })
+        console.log(datosMSSQL.length,' registros encontrados')
+        //Limpiado de infromación
+        await scd_cat_delegacionSQLite.destroy({ where : {}});
+        await scd_cat_delegacionSQLite.bulkCreate(datos); */
+        //const datosSQLite = await scd_cat_delegacionSQLite.findAll();
+
+        return res.send({
+            ok: true,
+            msg: 'Se ha realizado la migracion de scd_cat_delegacion',
+            //datosSQLite,
+            //datosSQLite
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send({
+            ok: false,
+            msg: 'Error crítico en la migracion',
+        }); 
+    }
+}
+
 module.exports = {
     Migracion_scd_votos,
     CrearCorte,
-    ConsultaVotos
+    ConsultaVotos,
+    Migracion_scd_cat_delegacion
 }

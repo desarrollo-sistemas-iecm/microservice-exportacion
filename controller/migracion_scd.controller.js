@@ -22,6 +22,14 @@ const { scd_cat_dist_deleMSSQL } = require("../models/mssql/sicodid/scd_cat_dist
 const { scd_cat_dist_deleSQLite } = require("../models/sqlite/scd/scd_cat_dist_dele.model");
 const { scd_cat_distritoMSSQL } = require("../models/mssql/sicodid/scd_cat_distrito.model");
 const { scd_cat_distritoSQLite } = require("../models/sqlite/scd/scd_cat_distrito.model");
+const { SCD_casillasMSSQL } = require("../models/mssql/sicodid/scd_casillas_SICODID.model");
+const { SCD_casillasSQLite } = require("../models/sqlite/scd/scd_casillas.model");
+const { scd_candidatos_jdel_SICODIDMSSQL } = require("../models/mssql/sicodid/scd_candidatos_jdel_SICODID.model");
+const { scd_candidatos_jdel_SICODIDSQLite } = require("../models/sqlite/scd/scd_candidatos_jdel.model");
+const { scd_candidatos_jgo_SICODIDbMSSQL } = require("../models/mssql/sicodid/scd_candidatos_jgob_SICODID.model");
+const { scd_candidatos_jgob_SICODIDSQLite } = require("../models/sqlite/scd/scd_candidatos_jgob.model");
+const { scd_candidatos_mr_SICODIDMSSQL } = require("../models/mssql/sicodid/scd_candidatos_mr_SICODID.model");
+const { scd_candidatos_mrSICODIDSQLite } = require("../models/sqlite/scd/scd_candidatos_mr.model");
 
 /**
  * Migración de información de la tabla prep_votosMSSQL
@@ -250,7 +258,7 @@ const Migracion_scd_cat_delegacion = async (req, res = response) => {
     let datos =[];
     try {
         const datosMSSQL = await scd_cat_delegacionMSSQL.findAll();
-        /* if (datosMSSQL.length == 0){
+        if (datosMSSQL.length == 0){
             await scd_cat_delegacionSQLite.destroy({ where : {}});
             return res.send({
                 ok: true,
@@ -274,7 +282,7 @@ const Migracion_scd_cat_delegacion = async (req, res = response) => {
         console.log(datosMSSQL.length,' registros encontrados')
         //Limpiado de infromación
         await scd_cat_delegacionSQLite.destroy({ where : {}});
-        await scd_cat_delegacionSQLite.bulkCreate(datos); */
+        await scd_cat_delegacionSQLite.bulkCreate(datos);
         //const datosSQLite = await scd_cat_delegacionSQLite.findAll();
 
         return res.send({
@@ -393,11 +401,219 @@ const Migracion_scd_cat_distrito = async (req, res = response) => {
 }
 
 
+const SCDMigracion_scd_casillas = async (req, res = response) => {
+    let datos =[];
+    try {
+        const datosMSSQL = await SCD_casillasMSSQL.findAll();
+        
+        if (datosMSSQL.length == 0){
+            await scd_casillasSQLite.destroy({ where : {}});
+            return res.send({
+                ok: true,
+                msg: 'Sin datos en scd_casillas'
+            });
+        }
+        datosMSSQL.forEach((element)=>{
+            datos.push({
+                id_delegacion:element.id_delegacion,  
+                id_distrito:element.id_distrito,
+                id_seccion:element.id_seccion,
+                tipo_casilla:element.tipo_casilla,
+                clave_mdc:element.clave_mdc,
+                empadronados:element.empadronados,
+                lista_nominal:element.lista_nominal,
+                id_usuario:element.id_usuario,
+                fecha_alta: moment(element.fecha_alta).format("YYYY-MM-DD HH:mm:ss.SSS"),
+                fecha_modif: moment(element.fecha_modif).format("YYYY-MM-DD HH:mm:ss.SSS"),
+                // fecha_alta: element.fecha_alta,
+                // fecha_modif: element.fecha_modif,
+                estatus:element.estatus,
+                // acta_jg:element.acta_jg,
+                // acta_dmr:element.acta_dmr,
+                // acta_rp:element.acta_rp,
+                // acta_alcalde:  element.acta_alcalde
+            })
+        })
+        console.log(datosMSSQL.length,' registros encontrados')
+        //Limpiado de infromación
+        await SCD_casillasSQLite.destroy({ where : {}});
+        await SCD_casillasSQLite.bulkCreate(datos);
+        //const datosSQLite = await scd_casillasSQLite.findAll();
+
+        return res.send({
+            ok: true,
+            msg: 'Se ha realizado la migracion de scd_casillas',
+            //datosSQLite,
+            //datosSQLite
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send({
+            ok: false,
+            msg: 'Error crítico en la migracion',
+        }); 
+    }
+    
+}
+
+/**
+ * Migración de información de la tabla scd_candidatos_jdel
+ * @param {*} req 
+ * @param {*} res 
+ * @returns Respuesta de éxito o error, booleano de resultado de transacción y un mensaje personalizado 
+ */
+const SCDMigracion_scd_candidatos_jdel = async (req, res = response) => {
+    let datos = [];
+    try {
+        const datosMSSQL = await scd_candidatos_jdel_SICODIDMSSQL.findAll();
+        if (datosMSSQL.length == 0){
+            await scd_candidatos_jdelSQLite.destroy({ where : {}});
+            return res.send({
+                ok: true,
+                msg: 'Sin datos en scd_candidatos_jdel'
+            });
+        }
+        datosMSSQL.forEach((element)=>{
+            datos.push({
+                id_delegacion: element.id_delegacion,  
+                id_participante: element.id_participante,
+                tipo_participante: element.tipo_participante,
+                prelacion: element.prelacion,
+                integrantes: element.integrantes,
+                campo_votos: element.campo_votos,
+                fecha_alta: moment(element.fecha_alta).format("YYYY-MM-DD HH:mm:ss.SSS"),
+            })
+        })
+        console.log(datosMSSQL.length,' registros encontrados')
+        //Limpiado de infromación
+        await scd_candidatos_jdel_SICODIDSQLite.destroy({ where : {}});
+        await scd_candidatos_jdel_SICODIDSQLite.bulkCreate(datos);
+        //const datosSQLite = await scd_casillasSQLite.findAll();
+
+        return res.send({
+            ok: true,
+            msg: 'Se ha realizado la migracion de scd_candidatos_jdel',
+            //datosSQLite,
+            //datosSQLite
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send({
+            ok: false,
+            msg: 'Error crítico en la migracion',
+        }); 
+    }
+
+}
+
+/**
+ * Migración de información de la tabla scd_candidatos_jgob
+ * @param {*} req 
+ * @param {*} res 
+ * @returns Respuesta de éxito o error, booleano de resultado de transacción y un mensaje personalizado 
+ */
+const SCDMigracion_scd_candidatos_jgob = async (req, res = response) => {
+    let datos = [];
+    try {
+        const datosMSSQL = await scd_candidatos_jgo_SICODIDbMSSQL.findAll();
+        if (datosMSSQL.length == 0){
+            await scd_candidatos_jgobSQLite.destroy({ where : {}});
+            return res.send({
+                ok: true,
+                msg: 'Sin datos en scd_candidatos_jgob'
+            });
+        }
+        datosMSSQL.forEach((element)=>{
+            datos.push({
+                id_participante: element.id_participante,
+                tipo_participante: element.tipo_participante,
+                prelacion: element.prelacion,
+                integrantes: element.integrantes,
+                campo_votos: element.campo_votos,
+                fecha_alta: moment(element.fecha_alta).format("YYYY-MM-DD HH:mm:ss.SSS"),
+            })
+        })
+        console.log(datosMSSQL.length,' registros encontrados')
+        //Limpiado de infromación
+        await scd_candidatos_jgob_SICODIDSQLite.destroy({ where : {}});
+        await scd_candidatos_jgob_SICODIDSQLite.bulkCreate(datos);
+        //const datosSQLite = await scd_casillasSQLite.findAll();
+
+        return res.send({
+            ok: true,
+            msg: 'Se ha realizado la migracion de scd_candidatos_jgob',
+            //datosSQLite,
+            //datosSQLite
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send({
+            ok: false,
+            msg: 'Error crítico en la migracion',
+        }); 
+    }
+
+}
+
+/**
+ * Migración de información de la tabla scd_candidatos_mr
+ * @param {*} req 
+ * @param {*} res 
+ * @returns Respuesta de éxito o error, booleano de resultado de transacción y un mensaje personalizado 
+ */
+const SCDMigracion_scd_candidatos_mr = async (req, res = response) => {
+    let datos = [];
+    try {
+        const datosMSSQL = await scd_candidatos_mr_SICODIDMSSQL.findAll();
+        if (datosMSSQL.length == 0){
+            await scd_candidatos_mrSQLite.destroy({ where : {}});
+            return res.send({
+                ok: true,
+                msg: 'Sin datos en scd_candidatos_mr'
+            });
+        }
+        datosMSSQL.forEach((element)=>{
+            datos.push({
+                id_distrito: element.id_distrito,
+                id_participante: element.id_participante,
+                tipo_participante: element.tipo_participante,
+                prelacion: element.prelacion,
+                integrantes: element.integrantes,
+                campo_votos: element.campo_votos,
+                fecha_alta: moment(element.fecha_alta).format("YYYY-MM-DD HH:mm:ss.SSS"),
+            })
+        })
+        console.log(datosMSSQL.length,' registros encontrados')
+        //Limpiado de infromación
+        await scd_candidatos_mrSICODIDSQLite.destroy({ where : {}});
+        await scd_candidatos_mrSICODIDSQLite.bulkCreate(datos);
+        //const datosSQLite = await scd_casillasSQLite.findAll();
+
+        return res.send({
+            ok: true,
+            msg: 'Se ha realizado la migracion de scd_candidatos_mr',
+            //datosSQLite,
+            //datosSQLite
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send({
+            ok: false,
+            msg: 'Error crítico en la migracion',
+        }); 
+    }
+
+}
+
 module.exports = {
     Migracion_scd_votos,
     CrearCorte,
     ConsultaVotos,
     Migracion_scd_cat_delegacion,
     Migracion_scd_cat_dist_dele,
-    Migracion_scd_cat_distrito
+    Migracion_scd_cat_distrito,
+    SCDMigracion_scd_casillas,
+    SCDMigracion_scd_candidatos_jdel,
+    SCDMigracion_scd_candidatos_jgob,
+    SCDMigracion_scd_candidatos_mr
 }

@@ -745,7 +745,7 @@ const Migracion_prep_votos = async (req, res = response) => {
                 validado: element.validado,
                 editado: element.editado,
                 inconsistencia: element.inconsistencia,
-                exede_ln: element.exede_ln,
+                exede_ln: element.excede_ln,
                 contabilizar: element.contabilizar,
                 capturado_por: element.capturado_por,
                 en_verificacion: element.en_verificacion,

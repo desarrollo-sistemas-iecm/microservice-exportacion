@@ -84,7 +84,7 @@ const prep_votosMSSQL = sqlconnector.define('prep_votos', {
     validado:                       { type: DataTypes.CHAR},
     editado:                        { type: DataTypes.CHAR},
     inconsistencia:                 { type: DataTypes.INTEGER },
-    exede_ln:                       { type: DataTypes.CHAR },
+    excede_ln:                      { type: DataTypes.CHAR },
     contabilizar:                   { type: DataTypes.CHAR},
     capturado_por:                  { type: DataTypes.INTEGER },
     en_verificacion:                { type: DataTypes.INTEGER },

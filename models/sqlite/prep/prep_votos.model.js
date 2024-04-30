@@ -84,6 +84,7 @@ const prep_votosSQLite = sqliteconnector.define('prep_votos', {
     validado:           { type: DataTypes.CHAR},
     editado:            { type: DataTypes.CHAR},
     inconsistencia:     { type: DataTypes.INTEGER },
+    exede_ln:           { type: DataTypes.TEXT },
     contabilizar:       { type: DataTypes.CHAR},
     capturado_por:      { type: DataTypes.INTEGER },
     en_verificacion:    { type: DataTypes.INTEGER },

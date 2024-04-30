@@ -5,10 +5,11 @@ const servers = [
     //     port: 100, // Puerto para FTP o puerto para SFTP
     //     user: "developer",
     //     password: "d3wr3p01",
-    //     secure: false, // Cambiar a true para usar SFTP
-    //     route: "/prep2024/db/"
-    // },
-    /* {
+    //     secure: true, // Cambiar a true para usar SFTP
+    //     route: "/prep2024/db"
+    // }
+    // ,
+    {
         name: "server_extractor",
         host: "145.0.179.22",
         port: 2010, // Puerto para FTP o puerto para SFTP
@@ -16,7 +17,7 @@ const servers = [
         password: "4cc3s0#13CM",
         secure: false, // Cambiar a true para usar SFTP
         route: "/"
-    } */
+    }
 ];
 
 module.exports = {

@@ -7,7 +7,7 @@
   "license": "ISC",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start:dev": "nodemon index.js",
+    "start:dev": "git pull && npm i && nodemon index.js",
     "start:prod": "node index.js"
   },
   "dependencies": {

@@ -30,6 +30,11 @@ const { scd_candidatos_jgo_SICODIDbMSSQL } = require("../models/mssql/sicodid/sc
 const { scd_candidatos_jgob_SICODIDSQLite } = require("../models/sqlite/scd/scd_candidatos_jgob.model");
 const { scd_candidatos_mr_SICODIDMSSQL } = require("../models/mssql/sicodid/scd_candidatos_mr_SICODID.model");
 const { scd_candidatos_mrSICODIDSQLite } = require("../models/sqlite/scd/scd_candidatos_mr.model");
+const { corteSQLiteSCD } = require("../models/sqlite/scd/corte.model");
+const { scd_cat_participantesMSSQL } = require("../models/mssql/sicodid/scd_cat_participantes.model");
+const { scd_cat_participantesSQLite } = require("../models/sqlite/scd/scd_cat_participantes.model");
+const { nourbanas } = require("../utils/nourbanas");
+const { SCDnourbanasLite } = require("../models/sqlite/scd/nourbanas.model");
 
 /**
  * Migración de información de la tabla prep_votosMSSQL
@@ -177,6 +182,54 @@ const CrearCorte = async(req, res) =>{
             });
         });
         console.log('Siguiente paso');
+        
+        moment.locale('es');
+        const actualTime = moment().format("LL");
+        const actualTimeDD = moment().format("DD");
+        const actualTimeMM = moment().format("MM");
+        const actualTimeYYYY = moment().format("YYYY");
+        const actualTimeHoras = moment().format("HH:mm");
+        const actualTimeHora = moment().format("HH");
+        const actualTimeMinuto = moment().format("mm");
+        const actualTimeSegundo = moment().format("ss");
+
+        console.log({
+            'corte_fecha': actualTime,
+            'corte_hora': actualTimeHoras,
+            'dia': actualTimeDD,
+            'mes': actualTimeMM,
+            'anio': actualTimeYYYY,
+            'hora': actualTimeHora,
+            'minuto': actualTimeMinuto,
+            'segundo': actualTimeSegundo,
+        });
+        const datosSQLite = await corteSQLiteSCD.findAll();
+
+        if (datosSQLite.length == 0) {
+            await corteSQLiteSCD.create({
+                'corte_fecha': actualTime,
+                'corte_hora': actualTimeHoras,
+                'dia': actualTimeDD,
+                'mes': actualTimeMM,
+                'anio': actualTimeYYYY,
+                'hora': actualTimeHora,
+                'minuto': actualTimeMinuto,
+                'segundo': actualTimeSegundo,
+            });
+        } else {
+            await corteSQLiteSCD.update({
+                'corte_fecha': actualTime,
+                'corte_hora': actualTimeHoras,
+                'dia': actualTimeDD,
+                'mes': actualTimeMM,
+                'anio': actualTimeYYYY,
+                'hora': actualTimeHora,
+                'minuto': actualTimeMinuto,
+                'segundo': actualTimeSegundo,
+            }, { where: {} });
+        }
+
+        // !!
         for (const server of servers) {
             // const client = new ftp.Client();
             // client.ftp.verbose = true;
@@ -196,16 +249,61 @@ const CrearCorte = async(req, res) =>{
                     host: server.host,
                     port: server.port,
                     username: server.user,
-                    password:  server.password
+                    password: server.password
                 }).then(() => {
                     console.log(`Conectado a ${server.name}`);
                     const ruta = server.route;
                     // sftp.delete(`${ruta}database.db3`);
                     // console.log(`Archivo eliminado para sustituir de ${name}`);
-                    return sftp.exists(`${ruta}sicodid/database.db3`).then((exists) => {
+                    return sftp.exists(`${ruta}sicodid/database.db3`).then(async (exists) => {
                         if (exists) {
                             console.log('El archivo remoto existe. Eliminándolo...');
                             // Eliminar el archivo remoto
+                            moment.locale('es');
+                            const actualTime = moment().format("LL");
+                            const actualTimeDD = moment().format("DD");
+                            const actualTimeMM = moment().format("MM");
+                            const actualTimeYYYY = moment().format("YYYY");
+                            const actualTimeHoras = moment().format("HH:mm");
+                            const actualTimeHora = moment().format("HH");
+                            const actualTimeMinuto = moment().format("mm");
+                            const actualTimeSegundo = moment().format("ss");
+
+                            console.log({
+                                'corte_fecha': actualTime,
+                                'corte_hora': actualTimeHoras,
+                                'dia': actualTimeDD,
+                                'mes': actualTimeMM,
+                                'anio': actualTimeYYYY,
+                                'hora': actualTimeHora,
+                                'minuto': actualTimeMinuto,
+                                'segundo': actualTimeSegundo,
+                            });
+                            const datosSQLite = await corteSQLiteSCD.findAll();
+
+                            if (datosSQLite.length == 0) {
+                                await corteSQLiteSCD.create({
+                                    'corte_fecha': actualTime,
+                                    'corte_hora': actualTimeHoras,
+                                    'dia': actualTimeDD,
+                                    'mes': actualTimeMM,
+                                    'anio': actualTimeYYYY,
+                                    'hora': actualTimeHora,
+                                    'minuto': actualTimeMinuto,
+                                    'segundo': actualTimeSegundo,
+                                });
+                            } else {
+                                await corteSQLiteSCD.update({
+                                    'corte_fecha': actualTime,
+                                    'corte_hora': actualTimeHoras,
+                                    'dia': actualTimeDD,
+                                    'mes': actualTimeMM,
+                                    'anio': actualTimeYYYY,
+                                    'hora': actualTimeHora,
+                                    'minuto': actualTimeMinuto,
+                                    'segundo': actualTimeSegundo,
+                                }, { where: {} });
+                            }
                             return sftp.delete(`${ruta}sicodid/database.db3`);
                         } else {
                             console.log('El archivo remoto no existe.');
@@ -224,25 +322,26 @@ const CrearCorte = async(req, res) =>{
                 }).finally(() => {
                     // Cerrar la conexión SFTP
                     sftp.end();
-                });;
-    
+                });
                 // console.log(`Conectado a ${server.name}`);
                 // const ruta = server.route;
-    
+
                 // await client.uploadFrom(fs.createReadStream(ruteFile), `${ruta}database.db3`);
 
-    
+
                 // console.log(`Archivo subido a ${server.name}`);
-    
+
                 // client.close();
                 // console.log(`Desconectado de ${server.name}`);
             } catch (err) {
                 console.error(`Error en la transferencia a ${server.name}:`, err);
             }
-        } 
+        }
+        // !!
+        
         return res.send({
             ok: true,
-            msg: 'Se ha creado el corte y exportado la Base de Datos SICODID'
+            msg: 'Se ha creado el corte y exportado la Base de Datos del SICODID'
         });
 
     } catch (error) {
@@ -456,6 +555,49 @@ const SCDMigracion_scd_casillas = async (req, res = response) => {
     
 }
 
+const Migracion_scd_cat_participantes = async (req, res = response) => {
+    let datos =[];
+    try {
+        const datosMSSQL = await scd_cat_participantesMSSQL.findAll();
+        if (datosMSSQL.length == 0){
+            await scd_cat_participantesSQLite.destroy({ where : {}});
+            return res.send({
+                ok: true,
+                msg: 'Sin datos en scd_cat_participantes'
+            });
+        }
+        datosMSSQL.forEach((element)=>{
+            datos.push({
+                id_participante: element.id_participante,
+                descripcion: element.descripcion,
+                siglas: element.siglas,
+                id_usuario: element.id_usuario,
+                fecha_alta: element.fecha_alta,
+                fecha_modif: element.fecha_modif,
+                estatus: element.estatus
+            })
+        })
+        console.log(datosMSSQL.length,' registros encontrados')
+        //Limpiado de infromación
+        await scd_cat_participantesSQLite.destroy({ where : {}});
+        await scd_cat_participantesSQLite.bulkCreate(datos);
+        //const datosSQLite = await scd_cat_participantesSQLite.findAll();
+
+        return res.send({
+            ok: true,
+            msg: 'Se ha realizado la migracion de scd_cat_participantes',
+            //datosSQLite,
+            //datosSQLite
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send({
+            ok: false,
+            msg: 'Error crítico en la migracion',
+        }); 
+    }
+}
+
 /**
  * Migración de información de la tabla scd_candidatos_jdel
  * @param {*} req 
@@ -605,6 +747,48 @@ const SCDMigracion_scd_candidatos_mr = async (req, res = response) => {
 
 }
 
+const SCDMigracion_nourbanas = async (req, res = response) => {
+    let datos = [];
+    try{
+        // const datosMSSQL = await .findAll();
+        const datosMSSQL = nourbanas;
+        if(datosMSSQL.length == 0){
+            // await .destroy({ where : {}});
+            return res.send({
+                ok: true,
+                msg: 'Sin datos en nourbanas'
+            });
+        }
+        datosMSSQL.forEach((element)=>{
+            datos.push({
+                iddistrito:    element.iddistrito,
+                idseccion:     element.idseccion,
+                idcasilla:     element.idcasilla,
+                tiposeccion:   element.tiposeccion,
+                clave_mdc:     element.clave_mdc
+            })
+        });
+        console.log(datosMSSQL.length,' registros encontrados')
+        //Limpiado de infromación
+        await SCDnourbanasLite.destroy({ where : {}});
+        await SCDnourbanasLite.bulkCreate(datos);
+        //const datosSQLite = await cain_cat_dist_deleSQLite.findAll();
+
+        return res.send({
+            ok: true,
+            msg: 'Se ha realizado la migracion de nourbanas',
+            //datosSQLite,
+            //datosSQLite
+        });
+    }catch(error){
+        console.log(error);
+        return res.status(500).send({
+            ok: false,
+            msg: 'Error crítico en la migracion',
+        }); 
+    }
+}
+
 module.exports = {
     Migracion_scd_votos,
     CrearCorte,
@@ -615,5 +799,7 @@ module.exports = {
     SCDMigracion_scd_casillas,
     SCDMigracion_scd_candidatos_jdel,
     SCDMigracion_scd_candidatos_jgob,
-    SCDMigracion_scd_candidatos_mr
+    SCDMigracion_scd_candidatos_mr,
+    Migracion_scd_cat_participantes,
+    SCDMigracion_nourbanas
 }

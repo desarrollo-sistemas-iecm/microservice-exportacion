@@ -5,7 +5,7 @@
 
 const { Router } = require('express');
 const { check } = require('express-validator');
-const { Migracion_scd_votos, ConsultaVotos, CrearCorte, Migracion_scd_cat_delegacion, Migracion_scd_cat_dist_dele, Migracion_scd_cat_distrito, SCDMigracion_scd_casillas, SCDMigracion_scd_candidatos_jdel, SCDMigracion_scd_candidatos_jgob, SCDMigracion_scd_candidatos_mr } = require('../controller/migracion_scd.controller');
+const { Migracion_scd_votos, ConsultaVotos, CrearCorte, Migracion_scd_cat_delegacion, Migracion_scd_cat_dist_dele, Migracion_scd_cat_distrito, SCDMigracion_scd_casillas, SCDMigracion_scd_candidatos_jdel, SCDMigracion_scd_candidatos_jgob, SCDMigracion_scd_candidatos_mr, Migracion_scd_cat_participantes, SCDMigracion_nourbanas } = require('../controller/migracion_scd.controller');
 const { validadorCreateItem } = require('../validators/validador');
 const router = Router();
 
@@ -23,6 +23,11 @@ router.post('/consulta_votos',
     [
         check('id_distrito', 'Se necesita indicar el identificador de la Dirección Distrito "id_distrito".').exists().notEmpty(),
     ], ConsultaVotos 
+);
+
+router.get('/nourbanas',
+    [
+    ], SCDMigracion_nourbanas 
 );
 
 
@@ -43,6 +48,11 @@ router.get('/scd_cat_dist_dele',
 router.get('/scd_cat_distrito',
     [
     ], Migracion_scd_cat_distrito 
+);
+
+router.get('/scd_cat_participantes',
+    [
+    ], Migracion_scd_cat_participantes 
 );
 
 /**

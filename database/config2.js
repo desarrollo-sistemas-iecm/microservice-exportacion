@@ -18,19 +18,19 @@ const sqlconnector2 = new Sequelize('jornada2024', 'sedimde2024_db', '8nYKrYmza3
 /** Liga de conexión a Desarrollo
  * 
  */
-// const sqlconnector2 = new Sequelize('jornada2024', 'user1', 'u53r1', {
-//     host: '145.0.40.72',
-//     dialect: 'mssql',
-//     dialectOptions: {
-//         options: {
-//           "encrypt": false
-//         }
-//     },
-//     define: {
-//         timestamps: false
-//     },
-//     logging: false // false in dev Change in production
-// });
+/* const sqlconnector2 = new Sequelize('jornada2024_simulacro3', 'user1', 'u53r1', {
+    host: '145.0.40.72',
+    dialect: 'mssql',
+    dialectOptions: {
+        options: {
+          "encrypt": false
+        }
+    },
+    define: {
+        timestamps: false
+    },
+    logging: false // false in dev Change in production
+}); */
 
 
 module.exports = {

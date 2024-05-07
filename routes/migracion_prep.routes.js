@@ -39,7 +39,7 @@ router.get('/nourbanas',
     [
     ], Migracion_nourbanas 
 );
-router.get('/prep_votos',
+router.get('/prep_votos/:urna',
     [
     ], Migracion_prep_votos 
 );

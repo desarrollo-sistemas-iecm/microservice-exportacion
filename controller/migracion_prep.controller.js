@@ -2,8 +2,8 @@ const { response } = require("express");
 const moment = require('moment');
 const fs = require('fs');
 const ftp = require("basic-ftp");
-const { servers } = require('../helpers/servidores')
-
+const { servers } = require('../helpers/servidores');
+const Sequelize = require('sequelize');
 let Client = require('ssh2-sftp-client');
 
 /**
@@ -662,8 +662,13 @@ const Migracion_scd_candidatos_mr = async (req, res = response) => {
  */
 const Migracion_prep_votos = async (req, res = response) => {
     let datos =[];
+    const urna = req.params.urna;
+    const Op = Sequelize.Op;
+    console.log(urna);
     try {
-        const datosMSSQL = await prep_votosMSSQL.findAll();
+        // Dependiendo del valor del parámetro urna, determina si trae todos los votos en casillas que no seas de urna electrónica si es false, si es true tae todos los votos de todas las casillas.
+        const datosMSSQL = urna === 'false' ? await prep_votosMSSQL.findAll({ where: { ue_qr:{ [Op.is]: null } } }) : await prep_votosMSSQL.findAll();
+        // const datosMSSQL = await prep_votosMSSQL.findAll();
         if (datosMSSQL.length == 0){
             await prep_votosSQLite.destroy({ where : {}});
             return res.send({
@@ -740,15 +745,30 @@ const Migracion_prep_votos = async (req, res = response) => {
                 validado: element.validado,
                 editado: element.editado,
                 inconsistencia: element.inconsistencia,
+                exede_ln: element.excede_ln,
                 contabilizar: element.contabilizar,
                 capturado_por: element.capturado_por,
-                en_verificacion: element.en_verificacion
+                en_verificacion: element.en_verificacion,
+                ue_identificador_comprobante: element.ue_identificador_comprobante,
+                ue_circunscripcion_federal: element.ue_circunscripcion_federal,
+                ue_id_casilla: element.ue_id_casilla,
+                ue_tipo_casilla: element.ue_tipo_casilla,
+                ue_id_ext_contigua: element.ue_id_ext_contigua,
+                ue_tipo_documento: element.ue_tipo_documento,
+                ue_personas_votaron: element.ue_personas_votaron,
+                ue_identificacion: element.ue_identificacion,
+                ue_votos_partidos: element.ue_votos_partidos,
+                ue_version_software: element.ue_version_software,
+                ue_fecha_impresion: element.ue_fecha_impresion,
+                ue_codigo_integridad: element.ue_codigo_integridad,
+                ue_qr: element.ue_qr
             })
         })
         console.log(datosMSSQL.length,' registros encontrados')
         //Limpiado de infromación
         await prep_votosSQLite.destroy({ where : {}});
         await prep_votosSQLite.bulkCreate(datos);
+        // urna === 'true' ? console.log('es true') : console.log('es false');
         //const datosSQLite = await prep_votosSQLite.findAll();
 
         return res.send({
@@ -823,8 +843,10 @@ const Migracion_sedimde_enc_seguimiento = async (req, res = response) => {
                 id_estado_seg:          element.id_estado_seg,
                 seg_obs:                element.seg_obs,
                 id_usuario:             element.id_usuario,
-                fecha_alta:             moment(element.fecha_alta).format("YYYY-MM-DD HH:mm"),
-                fecha_modif:            moment(element.fecha_modif).format("YYYY-MM-DD HH:mm"),
+                // fecha_alta:             moment(element.fecha_alta).format("DD-MM-YYYY HH:mm"),
+                // fecha_modif:            moment(element.fecha_modif).format("DD-MM-YYYY HH:mm"),
+                fecha_alta:             element.fecha_alta,
+                fecha_modif:            element.fecha_modif,
                 status:                 element.status,
                 delfoliojd_bol:         element.delfoliojd_bol,
                 alfoliojd_bol:          element.alfoliojd_bol,
@@ -900,79 +922,103 @@ const CrearCorte = async(req, res) =>{
         });
         console.log('Siguiente paso');
         for (const server of servers) {
-            // const client = new ftp.Client();
-            // client.ftp.verbose = true;
 
-            let sftp = new Client();
-            try {
-                // await client.access({
-                //     host: server.host,
-                //     port: server.port,
-                //     user: server.user,
-                //     password: server.password,
-                //     secure: server.secure,
-                //     tls: tls
-                // });
+            if (server.develop){
+                console.log('develop es true');
+                const client = new ftp.Client();
+                client.ftp.verbose = true;
+                const ruta = server.route;
+                try {
+                    await client.access({
+                        host: server.host,
+                        port: server.port,
+                        user: server.user,
+                        password: server.password,
+                        secure: server.secure,
+                        tls: tls
+                    });
+                    console.log(`Conectado a ${server.name}`);
+                    await client.uploadFrom(fs.createReadStream(ruteFile), `${ruta}db/database.db3`);
+                    console.log(`Archivo subido a ${server.name}`);
+                    return res.send({
+                        ok: true,
+                        msg: 'Se ha creado el corte y se ha exportado la Base de Datos de PREP'
+                    });
+                } catch (error) {
+                    console.error('Error al indicar archivo:', error);
+                    client.close(); 
+                    console.log(`Desconectado de ${server.name}`);
+                    return res.status(500).send({
+                        ok: false,
+                        msg: 'Error en la transferencia del archivo db3 con el o los servidores',
+                    }); 
+                } finally {
+                    client.close();
+                    console.log(`Desconectado de ${server.name}`);
+                }
 
+            } else {
+                let sftp = new Client();
+                moment.locale('es');
+                const actualTime = moment().format("LL");
+                const actualTimeDD = moment().format("DD");
+                const actualTimeMM = moment().format("MM");
+                const actualTimeYYYY = moment().format("YYYY");
+                const actualTimeHoras = moment().format("HH:mm");
+                const actualTimeHora = moment().format("HH");
+                const actualTimeMinuto = moment().format("mm");
+                const actualTimeSegundo = moment().format("ss");
+    
+                console.log({ 
+                    'corte_fecha':actualTime, 
+                    'corte_hora':  actualTimeHoras, 
+                    'dia': actualTimeDD, 
+                    'mes': actualTimeMM, 
+                    'anio': actualTimeYYYY, 
+                    'hora': actualTimeHora,
+                    'minuto': actualTimeMinuto,
+                    'segundo': actualTimeSegundo,
+                });
+                const datosSQLite = await corteSQLite.findAll();
+    
+                if (datosSQLite.length == 0){
+                    await corteSQLite.create({ 
+                        'corte_fecha':actualTime, 
+                        'corte_hora':  actualTimeHoras, 
+                        'dia': actualTimeDD, 
+                        'mes': actualTimeMM, 
+                        'anio': actualTimeYYYY, 
+                        'hora': actualTimeHora,
+                        'minuto': actualTimeMinuto,
+                        'segundo': actualTimeSegundo,
+                    });
+                } else {
+                    await corteSQLite.update({ 
+                        'corte_fecha':actualTime, 
+                        'corte_hora':  actualTimeHoras, 
+                        'dia': actualTimeDD, 
+                        'mes': actualTimeMM, 
+                        'anio': actualTimeYYYY, 
+                        'hora': actualTimeHora,
+                        'minuto': actualTimeMinuto,
+                        'segundo': actualTimeSegundo,
+                    }, { where: {} });
+                }
                 await sftp.connect({
                     host: server.host,
                     port: server.port,
                     username: server.user,
-                    password:  server.password
-                }).then(() => {
+                    password:  server.password,
+    
+                }).then(async () => {
                     console.log(`Conectado a ${server.name}`);
                     const ruta = server.route;
                     // sftp.delete(`${ruta}database.db3`);
                     // console.log(`Archivo eliminado para sustituir de ${name}`);
-                    return sftp.exists(`${ruta}prep/database.db3`).then(async (exists) => {
+                    return sftp.exists(`${ruta}prep/database.db3`).then((exists) => {
                         if (exists) {
                             console.log('El archivo remoto existe. Eliminándolo...');
                             // Eliminar el archivo remoto
-                            moment.locale('es');
-                            const actualTime = moment().format("LL");
-                            const actualTimeDD = moment().format("DD");
-                            const actualTimeMM = moment().format("MM");
-                            const actualTimeYYYY = moment().format("YYYY");
-                            const actualTimeHoras = moment().format("HH:mm");
-                            const actualTimeHora = moment().format("HH");
-                            const actualTimeMinuto = moment().format("mm");
-                            const actualTimeSegundo = moment().format("ss");
-
-                            console.log({ 
-                                'corte_fecha':actualTime, 
-                                'corte_hora':  actualTimeHoras, 
-                                'dia': actualTimeDD, 
-                                'mes': actualTimeMM, 
-                                'anio': actualTimeYYYY, 
-                                'hora': actualTimeHora,
-                                'minuto': actualTimeMinuto,
-                                'segundo': actualTimeSegundo,
-                            });
-                            const datosSQLite = await corteSQLite.findAll();
-
-                            if (datosSQLite.length == 0){
-                                await corteSQLite.create({ 
-                                    'corte_fecha':actualTime, 
-                                    'corte_hora':  actualTimeHoras, 
-                                    'dia': actualTimeDD, 
-                                    'mes': actualTimeMM, 
-                                    'anio': actualTimeYYYY, 
-                                    'hora': actualTimeHora,
-                                    'minuto': actualTimeMinuto,
-                                    'segundo': actualTimeSegundo,
-                                });
-                            } else {
-                                await corteSQLite.update({ 
-                                    'corte_fecha':actualTime, 
-                                    'corte_hora':  actualTimeHoras, 
-                                    'dia': actualTimeDD, 
-                                    'mes': actualTimeMM, 
-                                    'anio': actualTimeYYYY, 
-                                    'hora': actualTimeHora,
-                                    'minuto': actualTimeMinuto,
-                                    'segundo': actualTimeSegundo,
-                                }, { where: {} });
-                            }
                             return sftp.delete(`${ruta}prep/database.db3`);
                         } else {
                             console.log('El archivo remoto no existe.');
@@ -985,13 +1031,24 @@ const CrearCorte = async(req, res) =>{
                     });
                 }).then((data) => {
                     console.log(`Archivo cargado al servidor ${server.name}`);
+                    return res.send({
+                        ok: true,
+                        msg: 'Se ha creado el corte y se ha exportado la Base de Datos de PREP'
+                    });
                 }).catch((err) => {
                     console.error('Error al indicar archivo:', err);
                     sftp.end();
+                    return res.status(500).send({
+                        ok: false,
+                        msg: 'Error en la transferencia del archivo db3 con el o los servidores',
+                    }); 
                 }).finally(() => {
                     // Cerrar la conexión SFTP
                     sftp.end();
                 });
+            }
+
+            
                 // console.log(`Conectado a ${server.name}`);
                 // const ruta = server.route;
     
@@ -1002,17 +1059,14 @@ const CrearCorte = async(req, res) =>{
     
                 // client.close();
                 // console.log(`Desconectado de ${server.name}`);
-            } catch (err) {
-                console.error(`Error en la transferencia a ${server.name}:`, err);
-            }
+            // } catch (err) {
+            //     console.error(`Error en la transferencia a ${server.name}:`, err);
+            //     return res.status(500).send({
+            //         ok: false,
+            //         msg: 'Error en la transferencia',
+            //     }); 
+            // }
         }
-        
-        
-        return res.send({
-            ok: true,
-            msg: 'Se ha creado el corte y exportado la Base de Datos PREP'
-        });
-
     } catch (error) {
         console.log(error);
         return res.status(500).send({

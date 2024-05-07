@@ -231,8 +231,8 @@ const CrearCorte = async(req, res) =>{
 
         // !!
         for (const server of servers) {
-            // const client = new ftp.Client();
-            // client.ftp.verbose = true;
+            const client = new ftp.Client();
+            client.ftp.verbose = true;
 
             let sftp = new Client();
             try {
@@ -244,7 +244,6 @@ const CrearCorte = async(req, res) =>{
                 //     secure: server.secure,
                 //     tls: tls
                 // });
-
                 await sftp.connect({
                     host: server.host,
                     port: server.port,
@@ -322,7 +321,8 @@ const CrearCorte = async(req, res) =>{
                 }).finally(() => {
                     // Cerrar la conexión SFTP
                     sftp.end();
-                });
+                });;
+    
                 // console.log(`Conectado a ${server.name}`);
                 // const ruta = server.route;
 

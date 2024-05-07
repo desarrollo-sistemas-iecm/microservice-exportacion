@@ -922,106 +922,133 @@ const CrearCorte = async(req, res) =>{
         });
         console.log('Siguiente paso');
         for (const server of servers) {
-            // const client = new ftp.Client();
-            // client.ftp.verbose = true;
 
-            let sftp = new Client();
-            // try {
-                // await client.access({
-                //     host: server.host,
-                //     port: server.port,
-                //     user: server.user,
-                //     password: server.password,
-                //     secure: server.secure,
-                //     tls: tls
-                // });
-            moment.locale('es');
-            const actualTime = moment().format("LL");
-            const actualTimeDD = moment().format("DD");
-            const actualTimeMM = moment().format("MM");
-            const actualTimeYYYY = moment().format("YYYY");
-            const actualTimeHoras = moment().format("HH:mm");
-            const actualTimeHora = moment().format("HH");
-            const actualTimeMinuto = moment().format("mm");
-            const actualTimeSegundo = moment().format("ss");
-
-            console.log({ 
-                'corte_fecha':actualTime, 
-                'corte_hora':  actualTimeHoras, 
-                'dia': actualTimeDD, 
-                'mes': actualTimeMM, 
-                'anio': actualTimeYYYY, 
-                'hora': actualTimeHora,
-                'minuto': actualTimeMinuto,
-                'segundo': actualTimeSegundo,
-            });
-            const datosSQLite = await corteSQLite.findAll();
-
-            if (datosSQLite.length == 0){
-                await corteSQLite.create({ 
-                    'corte_fecha':actualTime, 
-                    'corte_hora':  actualTimeHoras, 
-                    'dia': actualTimeDD, 
-                    'mes': actualTimeMM, 
-                    'anio': actualTimeYYYY, 
-                    'hora': actualTimeHora,
-                    'minuto': actualTimeMinuto,
-                    'segundo': actualTimeSegundo,
-                });
-            } else {
-                await corteSQLite.update({ 
-                    'corte_fecha':actualTime, 
-                    'corte_hora':  actualTimeHoras, 
-                    'dia': actualTimeDD, 
-                    'mes': actualTimeMM, 
-                    'anio': actualTimeYYYY, 
-                    'hora': actualTimeHora,
-                    'minuto': actualTimeMinuto,
-                    'segundo': actualTimeSegundo,
-                }, { where: {} });
-            }
-            await sftp.connect({
-                host: server.host,
-                port: server.port,
-                username: server.user,
-                password:  server.password,
-
-            }).then(async () => {
-                console.log(`Conectado a ${server.name}`);
+            if (server.develop){
+                console.log('develop es true');
+                const client = new ftp.Client();
+                client.ftp.verbose = true;
                 const ruta = server.route;
-                // sftp.delete(`${ruta}database.db3`);
-                // console.log(`Archivo eliminado para sustituir de ${name}`);
-                return sftp.exists(`${ruta}prep/database.db3`).then((exists) => {
-                    if (exists) {
-                        console.log('El archivo remoto existe. Eliminándolo...');
-                        // Eliminar el archivo remoto
-                        return sftp.delete(`${ruta}prep/database.db3`);
-                    } else {
-                        console.log('El archivo remoto no existe.');
-                        return Promise.resolve(); // Continuar sin eliminar el archivo
-                    }
-                }).then(() => {
-                    console.log('Subiendo nuevo archivo...');
-                    // Subir el nuevo archivo
-                    return sftp.put(fs.createReadStream(ruteFile), `${ruta}prep/database.db3`);
+                try {
+                    await client.access({
+                        host: server.host,
+                        port: server.port,
+                        user: server.user,
+                        password: server.password,
+                        secure: server.secure,
+                        tls: tls
+                    });
+                    console.log(`Conectado a ${server.name}`);
+                    await client.uploadFrom(fs.createReadStream(ruteFile), `${ruta}db/database.db3`);
+                    console.log(`Archivo subido a ${server.name}`);
+                    return res.send({
+                        ok: true,
+                        msg: 'Se ha creado el corte y se ha exportado la Base de Datos de PREP'
+                    });
+                } catch (error) {
+                    console.error('Error al indicar archivo:', error);
+                    client.close(); 
+                    console.log(`Desconectado de ${server.name}`);
+                    return res.status(500).send({
+                        ok: false,
+                        msg: 'Error en la transferencia del archivo db3 con el o los servidores',
+                    }); 
+                } finally {
+                    client.close();
+                    console.log(`Desconectado de ${server.name}`);
+                }
+
+            } else {
+                let sftp = new Client();
+                moment.locale('es');
+                const actualTime = moment().format("LL");
+                const actualTimeDD = moment().format("DD");
+                const actualTimeMM = moment().format("MM");
+                const actualTimeYYYY = moment().format("YYYY");
+                const actualTimeHoras = moment().format("HH:mm");
+                const actualTimeHora = moment().format("HH");
+                const actualTimeMinuto = moment().format("mm");
+                const actualTimeSegundo = moment().format("ss");
+    
+                console.log({ 
+                    'corte_fecha':actualTime, 
+                    'corte_hora':  actualTimeHoras, 
+                    'dia': actualTimeDD, 
+                    'mes': actualTimeMM, 
+                    'anio': actualTimeYYYY, 
+                    'hora': actualTimeHora,
+                    'minuto': actualTimeMinuto,
+                    'segundo': actualTimeSegundo,
                 });
-            }).then((data) => {
-                console.log(`Archivo cargado al servidor ${server.name}`);
-                return res.send({
-                    ok: true,
-                    msg: 'Se ha creado el corte y se ha exportado la Base de Datos de PREP'
+                const datosSQLite = await corteSQLite.findAll();
+    
+                if (datosSQLite.length == 0){
+                    await corteSQLite.create({ 
+                        'corte_fecha':actualTime, 
+                        'corte_hora':  actualTimeHoras, 
+                        'dia': actualTimeDD, 
+                        'mes': actualTimeMM, 
+                        'anio': actualTimeYYYY, 
+                        'hora': actualTimeHora,
+                        'minuto': actualTimeMinuto,
+                        'segundo': actualTimeSegundo,
+                    });
+                } else {
+                    await corteSQLite.update({ 
+                        'corte_fecha':actualTime, 
+                        'corte_hora':  actualTimeHoras, 
+                        'dia': actualTimeDD, 
+                        'mes': actualTimeMM, 
+                        'anio': actualTimeYYYY, 
+                        'hora': actualTimeHora,
+                        'minuto': actualTimeMinuto,
+                        'segundo': actualTimeSegundo,
+                    }, { where: {} });
+                }
+                await sftp.connect({
+                    host: server.host,
+                    port: server.port,
+                    username: server.user,
+                    password:  server.password,
+    
+                }).then(async () => {
+                    console.log(`Conectado a ${server.name}`);
+                    const ruta = server.route;
+                    // sftp.delete(`${ruta}database.db3`);
+                    // console.log(`Archivo eliminado para sustituir de ${name}`);
+                    return sftp.exists(`${ruta}prep/database.db3`).then((exists) => {
+                        if (exists) {
+                            console.log('El archivo remoto existe. Eliminándolo...');
+                            // Eliminar el archivo remoto
+                            return sftp.delete(`${ruta}prep/database.db3`);
+                        } else {
+                            console.log('El archivo remoto no existe.');
+                            return Promise.resolve(); // Continuar sin eliminar el archivo
+                        }
+                    }).then(() => {
+                        console.log('Subiendo nuevo archivo...');
+                        // Subir el nuevo archivo
+                        return sftp.put(fs.createReadStream(ruteFile), `${ruta}prep/database.db3`);
+                    });
+                }).then((data) => {
+                    console.log(`Archivo cargado al servidor ${server.name}`);
+                    return res.send({
+                        ok: true,
+                        msg: 'Se ha creado el corte y se ha exportado la Base de Datos de PREP'
+                    });
+                }).catch((err) => {
+                    console.error('Error al indicar archivo:', err);
+                    sftp.end();
+                    return res.status(500).send({
+                        ok: false,
+                        msg: 'Error en la transferencia del archivo db3 con el o los servidores',
+                    }); 
+                }).finally(() => {
+                    // Cerrar la conexión SFTP
+                    sftp.end();
                 });
-            }).catch((err) => {
-                console.error('Error al indicar archivo:', err);
-                sftp.end();
-                return res.status(500).send({
-                    ok: false,
-                    msg: 'Error en la transferencia del archivo db3 con el o los servidores',
-                }); 
-            }).finally(() => {
-                // Cerrar la conexión SFTP
-                sftp.end();
-            });
+            }
+
+            
                 // console.log(`Conectado a ${server.name}`);
                 // const ruta = server.route;
     

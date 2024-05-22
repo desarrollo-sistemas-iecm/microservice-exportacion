@@ -84,6 +84,8 @@ const scd_votosSQLite = sqliteconnector2.define('scd_votos', {
     fecha_alta:         { type: DataTypes.STRING},
     fecha_modif:        { type: DataTypes.STRING},
     estatus:            { type: DataTypes.CHAR},
+    contabilizar:            { type: DataTypes.CHAR, defaultValue: 'T'},
+    validado:            { type: DataTypes.CHAR, defaultValue: 'T'}
 }, 
 {
     freezeTableName: true,

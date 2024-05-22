@@ -236,6 +236,7 @@ const CrearCorte = async(req, res) =>{
 
             let sftp = new Client();
             try {
+                // TODO: Arreglar esto de la publicación
                 // await client.access({
                 //     host: server.host,
                 //     port: server.port,
@@ -244,7 +245,7 @@ const CrearCorte = async(req, res) =>{
                 //     secure: server.secure,
                 //     tls: tls
                 // });
-                await sftp.connect({
+                /* await sftp.connect({
                     host: server.host,
                     port: server.port,
                     username: server.user,
@@ -322,7 +323,52 @@ const CrearCorte = async(req, res) =>{
                     // Cerrar la conexión SFTP
                     sftp.end();
                 });;
-    
+     */
+                moment.locale('es');
+                const actualTime = moment().format("LL");
+                const actualTimeDD = moment().format("DD");
+                const actualTimeMM = moment().format("MM");
+                const actualTimeYYYY = moment().format("YYYY");
+                const actualTimeHoras = moment().format("HH:mm");
+                const actualTimeHora = moment().format("HH");
+                const actualTimeMinuto = moment().format("mm");
+                const actualTimeSegundo = moment().format("ss");
+
+                console.log({
+                    'corte_fecha': actualTime,
+                    'corte_hora': actualTimeHoras,
+                    'dia': actualTimeDD,
+                    'mes': actualTimeMM,
+                    'anio': actualTimeYYYY,
+                    'hora': actualTimeHora,
+                    'minuto': actualTimeMinuto,
+                    'segundo': actualTimeSegundo,
+                });
+                const datosSQLite = await corteSQLiteSCD.findAll();
+
+                if (datosSQLite.length == 0) {
+                    await corteSQLiteSCD.create({
+                        'corte_fecha': actualTime,
+                        'corte_hora': actualTimeHoras,
+                        'dia': actualTimeDD,
+                        'mes': actualTimeMM,
+                        'anio': actualTimeYYYY,
+                        'hora': actualTimeHora,
+                        'minuto': actualTimeMinuto,
+                        'segundo': actualTimeSegundo,
+                    });
+                } else {
+                    await corteSQLiteSCD.update({
+                        'corte_fecha': actualTime,
+                        'corte_hora': actualTimeHoras,
+                        'dia': actualTimeDD,
+                        'mes': actualTimeMM,
+                        'anio': actualTimeYYYY,
+                        'hora': actualTimeHora,
+                        'minuto': actualTimeMinuto,
+                        'segundo': actualTimeSegundo,
+                    }, { where: {} });
+                }
                 // console.log(`Conectado a ${server.name}`);
                 // const ruta = server.route;
 

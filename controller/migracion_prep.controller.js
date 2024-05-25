@@ -6,6 +6,8 @@ const { servers } = require('../helpers/servidores');
 const Sequelize = require('sequelize');
 let Client = require('ssh2-sftp-client');
 
+
+
 /**
  * Modelos de la base de datos de MSSQL del servidor 145.0.40.23
  */
@@ -229,6 +231,7 @@ const Migracion_cain_cat_distrito = async (req, res = response) => {
  */
 const Migracion_dig_actas_prep = async (req, res = response) => {
     let datos = [];
+    moment.locale('es');
     try{
         const datosMSSQL = await dig_actas_prepMSSQL.findAll();
         if(datosMSSQL.length == 0){
@@ -254,11 +257,11 @@ const Migracion_dig_actas_prep = async (req, res = response) => {
                 md5_img_dmr:        element.md5_img_dmr,
                 md5_img_rp:         element.md5_img_rp,
                 especial:           element.especial,
-                fecha_jgob:         element.fecha_jgob ? moment(element.fecha_jgob).format("YYYY-MM-DD HH:mm:ss") : '',
-                fecha_alc:          element.fecha_alc ? moment(element.fecha_alc).format("YYYY-MM-DD HH:mm:ss") : '',
-                fecha_dmr:          element.fecha_dmr ? moment(element.fecha_dmr).format("YYYY-MM-DD HH:mm:ss") : '',
-                fecha_rp:           element.fecha_rp ? moment(element.fecha_rp).format("YYYY-MM-DD HH:mm:ss") : '',
-                fechaRecepcion:     element.fechaRecepcion ? moment(element.fechaRecepcion).format("YYYY-MM-DD HH:mm:ss") : '',
+                fecha_jgob:         element.fecha_jgob ? moment.utc(element.fecha_jgob).format("YYYY-MM-DD HH:mm:ss") : '',
+                fecha_alc:          element.fecha_alc ? moment.utc(element.fecha_alc).format("YYYY-MM-DD HH:mm:ss") : '',
+                fecha_dmr:          element.fecha_dmr ? moment.utc(element.fecha_dmr).format("YYYY-MM-DD HH:mm:ss") : '',
+                fecha_rp:           element.fecha_rp ? moment.utc(element.fecha_rp).format("YYYY-MM-DD HH:mm:ss") : '',
+                fechaRecepcion:     element.fechaRecepcion ? moment.utc(element.fechaRecepcion).format("YYYY-MM-DD HH:mm:ss") : '',
                 // fecha_jgob:         element.fecha_jgob,
                 // fecha_alc:          element.fecha_alc,
                 // fecha_dmr:          element.fecha_dmr,
@@ -362,8 +365,8 @@ const Migracion_prep_cat_inconsistencias = async (req, res = response) => {
                 descripcion: element.descripcion,
                 descripcion_abrev: element.descripcion_abrev,
                 id_usuario: element.id_usuario,
-                // fecha_alta: moment(element.fecha_alta).format("YYYY-MM-DD HH:mm:ss.SSS"),
-                // fecha_modifica: moment(element.fecha_modifica).format("YYYY-MM-DD HH:mm:ss.SSS"),
+                // fecha_alta: moment.utc(element.fecha_alta).format("YYYY-MM-DD HH:mm:ss.SSS"),
+                // fecha_modifica: moment.utc(element.fecha_modifica).format("YYYY-MM-DD HH:mm:ss.SSS"),
                 fecha_alta: element.fecha_alta,
                 fecha_modifica: element.fecha_modifica,
                 estatus: element.estatus,
@@ -418,8 +421,8 @@ const Migracion_prep_inconsistencias = async (req, res = response) => {
                 id_inconsistencia: element.id_inconsistencia,
                 campo: element.campo,
                 id_usuario: element.id_usuario,
-                fecha_alta: moment(element.fecha_alta).format("YYYY-MM-DD HH:mm:ss.SSS"),
-                fecha_modifica: moment(element.fecha_modifica).format("YYYY-MM-DD HH:mm:ss.SSS"),
+                fecha_alta: moment.utc(element.fecha_alta).format("YYYY-MM-DD HH:mm:ss.SSS"),
+                fecha_modifica: moment.utc(element.fecha_modifica).format("YYYY-MM-DD HH:mm:ss.SSS"),
                 estatus: element.estatus,
             })
         })
@@ -470,10 +473,10 @@ const Migracion_scd_casillas = async (req, res = response) => {
                 tipo_casilla:element.tipo_casilla,
                 clave_mdc:element.clave_mdc,
                 empadronados:element.empadronados,
-                lista_nominal:element.lista_nominal,
+                lista_nominal:element.empadronados,
                 id_usuario:element.id_usuario,
-                fecha_alta: moment(element.fecha_alta).format("YYYY-MM-DD HH:mm:ss.SSS"),
-                fecha_modif: moment(element.fecha_modif).format("YYYY-MM-DD HH:mm:ss.SSS"),
+                fecha_alta: moment.utc(element.fecha_alta).format("YYYY-MM-DD HH:mm:ss.SSS"),
+                fecha_modif: moment.utc(element.fecha_modif).format("YYYY-MM-DD HH:mm:ss.SSS"),
                 // fecha_alta: element.fecha_alta,
                 // fecha_modif: element.fecha_modif,
                 estatus:element.estatus,
@@ -530,7 +533,7 @@ const Migracion_scd_candidatos_jdel = async (req, res = response) => {
                 prelacion: element.prelacion,
                 integrantes: element.integrantes,
                 campo_votos: element.campo_votos,
-                fecha_alta: moment(element.fecha_alta).format("YYYY-MM-DD HH:mm:ss.SSS"),
+                fecha_alta: moment.utc(element.fecha_alta).format("YYYY-MM-DD HH:mm:ss.SSS"),
             })
         })
         console.log(datosMSSQL.length,' registros encontrados')
@@ -579,7 +582,7 @@ const Migracion_scd_candidatos_jgob = async (req, res = response) => {
                 prelacion: element.prelacion,
                 integrantes: element.integrantes,
                 campo_votos: element.campo_votos,
-                fecha_alta: moment(element.fecha_alta).format("YYYY-MM-DD HH:mm:ss.SSS"),
+                fecha_alta: moment.utc(element.fecha_alta).format("YYYY-MM-DD HH:mm:ss.SSS"),
             })
         })
         console.log(datosMSSQL.length,' registros encontrados')
@@ -629,7 +632,7 @@ const Migracion_scd_candidatos_mr = async (req, res = response) => {
                 prelacion: element.prelacion,
                 integrantes: element.integrantes,
                 campo_votos: element.campo_votos,
-                fecha_alta: moment(element.fecha_alta).format("YYYY-MM-DD HH:mm:ss.SSS"),
+                fecha_alta: moment.utc(element.fecha_alta).format("YYYY-MM-DD HH:mm:ss.SSS"),
             })
         })
         console.log(datosMSSQL.length,' registros encontrados')
@@ -667,7 +670,8 @@ const Migracion_prep_votos = async (req, res = response) => {
     console.log(urna);
     try {
         // Dependiendo del valor del parámetro urna, determina si trae todos los votos en casillas que no seas de urna electrónica si es false, si es true tae todos los votos de todas las casillas.
-        const datosMSSQL = urna === 'false' ? await prep_votosMSSQL.findAll({ where: { ue_qr:{ [Op.is]: null } } }) : await prep_votosMSSQL.findAll();
+        // const datosMSSQL = urna === 'false' ? await prep_votosMSSQL.findAll({ where: { ue_qr:{ [Op.is]: null }, tipo_casilla: { [Op.like]: 'S%' }  } }) : await prep_votosMSSQL.findAll();
+        const datosMSSQL = urna === 'false' ? await prep_votosMSSQL.findAll({ where: { ue_qr:{ [Op.is]: null }, tipo_casilla: { [Op.notLike]: 'S%' }  } }) : await prep_votosMSSQL.findAll();
         // const datosMSSQL = await prep_votosMSSQL.findAll();
         if (datosMSSQL.length == 0){
             await prep_votosSQLite.destroy({ where : {}});
@@ -739,8 +743,8 @@ const Migracion_prep_votos = async (req, res = response) => {
                 boletas_extraidas: element.boletas_extraidas,
                 total_sobres: element.total_sobres,
                 id_usuario: element.id_usuario,
-                fecha_alta: moment(element.fecha_alta).format("YYYY-MM-DD HH:mm:ss.SSS"),
-                fecha_modif: moment(element.fecha_modif).format("YYYY-MM-DD HH:mm:ss.SSS"),
+                fecha_alta: moment.utc(element.fecha_alta).format("YYYY-MM-DD HH:mm:ss.SSS"),
+                fecha_modif: moment.utc(element.fecha_modif).format("YYYY-MM-DD HH:mm:ss.SSS"),
                 estatus: element.estatus,
                 validado: element.validado,
                 editado: element.editado,
@@ -843,8 +847,8 @@ const Migracion_sedimde_enc_seguimiento = async (req, res = response) => {
                 id_estado_seg:          element.id_estado_seg,
                 seg_obs:                element.seg_obs,
                 id_usuario:             element.id_usuario,
-                // fecha_alta:             moment(element.fecha_alta).format("DD-MM-YYYY HH:mm"),
-                // fecha_modif:            moment(element.fecha_modif).format("DD-MM-YYYY HH:mm"),
+                // fecha_alta:             moment.utc(element.fecha_alta).format("DD-MM-YYYY HH:mm"),
+                // fecha_modif:            moment.utc(element.fecha_modif).format("DD-MM-YYYY HH:mm"),
                 fecha_alta:             element.fecha_alta,
                 fecha_modif:            element.fecha_modif,
                 status:                 element.status,

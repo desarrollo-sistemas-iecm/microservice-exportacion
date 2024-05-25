@@ -119,8 +119,8 @@ const Migracion_scd_votos = async (req, res = response) => {
                 grupo_trabajo: element.grupo_trabajo,
                 punto_recuento: element.punto_recuento,
                 id_usuario: element.id_usuario,
-                fecha_alta: moment(element.fecha_alta).format("YYYY-MM-DD HH:mm:ss.SSS"),
-                fecha_modif: moment(element.fecha_modif).format("YYYY-MM-DD HH:mm:ss.SSS"),
+                fecha_alta: moment.utc(element.fecha_alta).format("YYYY-MM-DD HH:mm:ss.SSS"),
+                fecha_modif: moment.utc(element.fecha_modif).format("YYYY-MM-DD HH:mm:ss.SSS"),
                 estatus: element.estatus
             })
         })
@@ -568,8 +568,8 @@ const SCDMigracion_scd_casillas = async (req, res = response) => {
                 empadronados:element.empadronados,
                 lista_nominal:element.lista_nominal,
                 id_usuario:element.id_usuario,
-                fecha_alta: moment(element.fecha_alta).format("YYYY-MM-DD HH:mm:ss.SSS"),
-                fecha_modif: moment(element.fecha_modif).format("YYYY-MM-DD HH:mm:ss.SSS"),
+                fecha_alta: moment.utc(element.fecha_alta).format("YYYY-MM-DD HH:mm:ss.SSS"),
+                fecha_modif: moment.utc(element.fecha_modif).format("YYYY-MM-DD HH:mm:ss.SSS"),
                 // fecha_alta: element.fecha_alta,
                 // fecha_modif: element.fecha_modif,
                 estatus:element.estatus,
@@ -669,7 +669,7 @@ const SCDMigracion_scd_candidatos_jdel = async (req, res = response) => {
                 prelacion: element.prelacion,
                 integrantes: element.integrantes,
                 campo_votos: element.campo_votos,
-                fecha_alta: moment(element.fecha_alta).format("YYYY-MM-DD HH:mm:ss.SSS"),
+                fecha_alta: moment.utc(element.fecha_alta).format("YYYY-MM-DD HH:mm:ss.SSS"),
             })
         })
         console.log(datosMSSQL.length,' registros encontrados')
@@ -718,7 +718,7 @@ const SCDMigracion_scd_candidatos_jgob = async (req, res = response) => {
                 prelacion: element.prelacion,
                 integrantes: element.integrantes,
                 campo_votos: element.campo_votos,
-                fecha_alta: moment(element.fecha_alta).format("YYYY-MM-DD HH:mm:ss.SSS"),
+                fecha_alta: moment.utc(element.fecha_alta).format("YYYY-MM-DD HH:mm:ss.SSS"),
             })
         })
         console.log(datosMSSQL.length,' registros encontrados')
@@ -768,7 +768,7 @@ const SCDMigracion_scd_candidatos_mr = async (req, res = response) => {
                 prelacion: element.prelacion,
                 integrantes: element.integrantes,
                 campo_votos: element.campo_votos,
-                fecha_alta: moment(element.fecha_alta).format("YYYY-MM-DD HH:mm:ss.SSS"),
+                fecha_alta: moment.utc(element.fecha_alta).format("YYYY-MM-DD HH:mm:ss.SSS"),
             })
         })
         console.log(datosMSSQL.length,' registros encontrados')

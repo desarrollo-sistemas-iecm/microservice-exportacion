@@ -671,7 +671,7 @@ const Migracion_prep_votos = async (req, res = response) => {
     try {
         // Dependiendo del valor del parámetro urna, determina si trae todos los votos en casillas que no seas de urna electrónica si es false, si es true tae todos los votos de todas las casillas.
         // const datosMSSQL = urna === 'false' ? await prep_votosMSSQL.findAll({ where: { ue_qr:{ [Op.is]: null }, tipo_casilla: { [Op.like]: 'S%' }  } }) : await prep_votosMSSQL.findAll();
-        const datosMSSQL = urna === 'false' ? await prep_votosMSSQL.findAll({ where: { ue_qr:{ [Op.is]: null }, tipo_casilla: { [Op.notLike]: 'S%' }  } }) : await prep_votosMSSQL.findAll();
+        const datosMSSQL = urna === 'false' ? await prep_votosMSSQL.findAll({ where: { ue_qr:{ [Op.is]: null }, tipo_casilla: { [Op.notLike]: 'S%' }, validado: { [Op.like]: 'T' }  } }) : await prep_votosMSSQL.findAll({ where : {validado: { [Op.like]: 'T' }} });
         // const datosMSSQL = await prep_votosMSSQL.findAll();
         if (datosMSSQL.length == 0){
             await prep_votosSQLite.destroy({ where : {}});
